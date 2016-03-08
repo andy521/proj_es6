@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>crud测试</title>
+    <link rel="stylesheet" type="text/css" href="/static/lib/jquery-easyui-1.4.3/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/lib/jquery-easyui-1.4.3/themes/icon.css">
+    <script type="text/javascript" src="/static/lib/jquery-easyui-1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/lib/jquery-easyui-1.4.3/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/lib/jquery-easyui-1.4.3/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/static/js/moment.js"></script>
+    <script src="/static/lib/jquery-file-upload/js/vendor/jquery.ui.widget.js"></script>
+    <script src="/static/lib/jquery-file-upload/js/jquery.iframe-transport.js"></script>
+    <script src="/static/lib/jquery-file-upload/js/jquery.fileupload.js"></script>
+</head>
+<body>
+
+<table id="dg" title="会员管理" style="width:100%;height:450px" class="easyui-datagrid" fitColumns="true" pagination="true" rownumbers="true"
+       url="/index/list" toolbar="#tb" data-options="pageSize:10,pageList:[5,10,15,25,50,100]">
+    <thead>
+    <tr>
+        <th field="cb" checkbox="true" align="center"></th>
+        <th data-options="field:'id',width:100">id</th>
+        <th data-options="field:'name',width:130,align:'center'">name</th>
+        <th data-options="field:'pass',width:130,align:'center'">pass</th>
+        <th data-options="field:'email',width:130,align:'center'">email</th>
+        <th data-options="field:'image',width:130,align:'center'">image</th>
+        <th data-options="field:'phone',width:130,align:'center'">phone</th>
+        <th data-options="field:'addr',width:130,align:'center'">addr</th>
+        <th data-options="field:'regtime',width:130,align:'center',formatter:formatReg">regtime</th>
+        <th data-options="field:'birth',width:130,align:'center'">birth</th>
+        <th data-options="field:'remark',width:130,align:'center'">remark</th>
+        <th field="operate" width="150" align="center" data-options="formatter:formatOperate">操作</th>
+    </tr>
+    </thead>
+</table>
+
+<div id="tb">
+
+    <div style="margin-top: 5px;margin-bottom: 5px;">
+        <a href="javascript:openUserAddDialog()" class="easyui-linkbutton"
+           data-options="plain:true,iconCls:'icon-user_add'" plain="true">添加</a>
+        <a href="javascript:delNums()" class="easyui-linkbutton"
+           data-options="plain:true,iconCls:'icon-user_delete'" plain="true">删除</a>
+    </div>
+    <div style="margin-top: 5px;">
+        <table>
+            <tr>
+                <td align="right">会员编号：</td>
+                <td align="right"><input class="easyui-numberbox" id="s_id" size="20" style="width: 150px;"></td>
+                <td align="right">手机号：</td>
+                <td align="right"><input class="easyui-numberbox" id="s_phone" size="20" style="width: 150px;"></td>
+                <td align="right">姓名：</td>
+                <td align="right"><input class="easyui-textbox" id="s_name" size="20" style="width: 150px;"></td>
+                <td align="right"><a href="javascript:searchUser()" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-2012092109942'">查询</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="dlg" class="easyui-dialog" style="width: 680px;height:630px;padding: 5px 5px" closed="true" buttons="#dlg-buttons" data-options="modal:true"
+     overflow-y="scroll">
+    <form id="addVipForm" method="post">
+        <table style="margin: 5px 5px;" cellspacing="5px">
+            <tr>
+                <td align="right" style="width: 140px;">手机号：</td>
+                <td align="left">
+                    <input id="phone" name="phone" type="text" class="easyui-validatebox" data-options="required:true"
+                           style="width: 150px;">
+                </td>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="right" style="width: 140px;">姓名：</td>
+                <td align="left">
+                    <input id="name" type="text" name="name" class="easyui-validatebox" data-options="required:true"
+                           style="width: 150px;"></span>
+                </td>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="right" style="width: 140px;">地址：</td>
+                <td align="left">
+                    <input id="addr" name="addr" type="text" class="easyui-validatebox" style="width: 150px;" data-options="required:true">
+                </td>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="right" style="width: 140px;">邮箱：</td>
+                <td align="left">
+                    <input id="email" type="text" name="email" class="easyui-validatebox" style="width: 150px;" data-options="required:true,validType:'email'">
+                </td>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="right" style="width: 140px;">头像：</td>
+                <td align="left">
+                    <input type="file" id="file_upload"/>
+                    <input type="hidden" id="file_path" name="image"/>
+                </td>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+                <td valign="top" align="left" style="width: 140px;">&nbsp;</td>
+                <td align="left">
+                    <img id="newImg" style="width: 100px;height: 110px;" src="/static/img/default.gif">&nbsp;<span id="errMsg" style="color: red"></span>
+                </td>
+                <td align="left">&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="right" style="width: 140px;">简介：</td>
+                <td align="left">
+                    <textarea rows="10" cols="65" id="remark" name="remark" placeholder="请简要描述您的专业经验"></textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:save()" class="easyui-linkbutton" iconCls="icon-ok" plain="true">提交</a>
+    <a href="javascript:cancel()" class="easyui-linkbutton" iconCls="icon-cancel" plain="true">取消</a>
+</div>
+
+<script type="text/javascript">
+    var url;
+    jQuery("#file_upload").fileupload({
+        iframe: true,
+        dataType: 'json',
+        url: "/index/upload",//文件上传地址，当然也可以直接写在input的data-url属性内
+        done: function (e, result) {
+            jQuery("#newImg").attr("src",result.result.path);
+            jQuery("#file_path").val(result.result.path);
+        }
+    });
+    function formatOperate(value, row, index){
+        var del = '<a onclick="del('+row.id+')" href="javascript:void(0)">删除</a>';
+        var update = '<a onclick="openUpdateDialog('+index+')" href="javascript:void(0)">修改</a>';
+        return update+ "&nbsp;" + del;
+    }
+    function del(id){
+        jQuery.messager.confirm("系统提示","您确认要删除该地区吗？",function(r){
+            if(r){
+                jQuery.post("/index/del",{id:id},function(result){
+                    if(result.succ){
+                        jQuery.messager.show({title:"提示",msg:"删除成功！"});
+                        jQuery("#dg").datagrid("reload");
+                    }else{
+                        jQuery.messager.show({title:"提示",msg:"删除失败！"});
+                    }
+                },"json");
+            }
+        });
+    }
+    function formatReg(value, row, index){
+        if(value)return moment(value).format("YYYY-MM-DD HH:mm:ss");
+    }
+    function openUserAddDialog(){
+        jQuery("#addVipForm").form("reset");
+        jQuery("#file_upload").attr("name","uploadFile");
+        jQuery("#dlg").dialog("open").dialog("setTitle", "新增会员");
+        url = "/index/add";
+    }
+    function save(){
+        jQuery("#addVipForm").form("submit", {
+            url: url,
+            onSubmit: function (param) {
+                if (!jQuery(this).form("validate")) {
+                    return false;
+                }
+                jQuery("#file_upload").removeAttr("name");
+                return true;
+            },
+            success: function (result) {   //result返回为String类型，需用eval函数处理为Object型对象再判断
+                result = JSON.parse(result);
+                if (result.succ) {
+                    jQuery.messager.show({title:"提示",msg:"操作成功"});
+                    jQuery("#addVipForm").form("reset");
+                    jQuery("#dlg").dialog("close");
+                    jQuery("#dg").datagrid("reload");
+                } else {
+                    jQuery.messager.show({title:"提示",msg:"操作失败"});
+                }
+            }
+        });
+    }
+    function dispValue(row){
+        jQuery("#phone").val(row.phone);
+        jQuery("#name").val(row.name);
+        jQuery("#addr").val(row.addr);
+        jQuery("#email").val(row.email);
+        jQuery("#remark").val(row.remark);
+        if(row.image){
+            jQuery("#image").val(row.image);
+            jQuery("#newImg").attr("src",row.image);
+        }
+    }
+    function openUpdateDialog(index){
+        jQuery("#file_upload").attr("name","uploadFile");
+        var row = jQuery("#dg").datagrid('getData').rows[index];
+        jQuery("#dlg").dialog("open").dialog("setTitle", "修改");
+        url = "/index/update?id="+row.id;
+        dispValue(row);
+    }
+    function searchUser(){
+        var s_id = jQuery("#s_id").numberbox("getValue");
+        var s_phone = jQuery("#s_phone").numberbox("getValue");
+        var s_name = jQuery("#s_name").textbox('getText').trim();
+        jQuery("#dg").datagrid("load", {
+            "id": s_id,
+            "phone": s_phone,
+            "name": s_name
+        });
+    }
+    function delNums(){
+        var selectedRows=jQuery("#dg").datagrid('getSelections');
+        if(selectedRows.length==0){
+            jQuery.messager.show({title:"提示",msg:"请选择要删除的数据！"});
+            return;
+        }
+        var strIds=[];
+        for(var i=0;i<selectedRows.length;i++){
+            strIds.push(selectedRows[i].id);
+        }
+        var ids=strIds.join(",");
+        jQuery.messager.confirm("系统提示","您确认要删除这<span style='color: red'>"+selectedRows.length+"</span>条数据吗？",function(r){
+            if(r){
+                jQuery.post("/index/del",{id:ids},function(result){
+                    if(result.succ){
+                        jQuery.messager.show({title:"提示",msg:"删除成功"});
+                        jQuery("#dg").datagrid("reload");
+                    }else{
+                        jQuery.messager.show({title:"提示",msg:"删除失败"});
+                    }
+                },"json");
+            }
+        });
+    }
+</script>
+</body>
+</html>
